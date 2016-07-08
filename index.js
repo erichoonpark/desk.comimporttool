@@ -18,6 +18,32 @@ var consumerSecret = "csAf6M4mtSw4Ou5CDrb5AyUKWfl1lSHfJyzu2jty";
 var userToken = "bHh44cKHT7JrWM0x5gdM";
 var userTokenSecret = "pjSvpbAYaRmN3rWnIdNYbUVxxqH1OIeUc6hqhqIY";
 
+
+//Change!!!!!
+var siteName = "zzz-leaflet";
+
+var deskStrat = new DeskcomStrategy({
+    requestTokenURL: 'https://zzz-leaflet.desk.com/oauth/request_token',
+    accessTokenURL: 'https://zzz-leaflet.desk.com/oauth/access_token',
+    userAuthorizationURL: 'https://zzz-leaflet.desk.com/oauth/authorize',
+    consumerKey: consumerKey,
+    consumerSecret: consumerSecret,
+    callbackURL: "https://87d3e774.ngrok.io/callback",
+    signatureMethod: "HMAC-SHA1",
+    param: 'site'
+  },
+  //Verify Callback after granted user access
+  function(token, tokenSecret, profile, cb) {
+    //console.log('arguments',arguments);
+    // userToken = token;
+    // userTokenSecret = tokenSecret;
+    cb(null,{"User":"Eric Park", token: token, tokenSecret: tokenSecret});
+  }
+);
+
+passport.use('desk', deskStrat);
+
+
 // app.use(express.logger());
 app.use(cookieParser());
 app.use(bodyParser.json({limit: '100mb'}));
@@ -33,35 +59,17 @@ app.use(express.static('public'));
 
 //Global Routes
 //Routes that activate the /desk to begin oauth
-app.get('/desk',function(req,res) {
-  //Set-up access to the Desk.com Server to gain access
-  passport.use(new DeskcomStrategy({
-      requestTokenURL: 'https://'+req.query.site+'.desk.com/oauth/request_token',
-      accessTokenURL: 'https://'+req.query.site+'.desk.com/oauth/access_token',
-      userAuthorizationURL: 'https://'+req.query.site+'.desk.com/oauth/authorize',
-      consumerKey: consumerKey,
-      consumerSecret: consumerSecret,
-      callbackURL: "https://33d95014.ngrok.io/callback",
-      signatureMethod: "HMAC-SHA1"
-    },
-    //Verify Callback after granted user access
-    function(token, tokenSecret, profile, cb) {
-      console.log('arguments',arguments);
-      // userToken = token;
-      // userTokenSecret = tokenSecret;
-      cb(null,{"User":"Eric Park", token: token, tokenSecret: tokenSecret});
-    }
-  ));
-  passport.authenticate('oauth').apply(this,arguments);
+app.get('/desk', function(req, res) {
+  console.log(deskStrat);
+  deskStrat._oauth._requestUrl = 'https://' + req.query.site + '.desk.com/oauth/request_token';
+  deskStrat._oauth._accessUrl = 'https://' + req.query.site + '.desk.com/oauth/access_token';
+  deskStrat._userAuthorizationURL = 'https://' + req.query.site + '.desk.com/oauth/authorize';
+
+  passport.authenticate('desk').call(app, req, res);
 });
 
 //Defined by Desk.com to set the call back url
-app.get('/callback',
-  passport.authenticate('oauth', { failureRedirect: '/login' }),
-  function(req, res) {
-    console.log("Request:" + req);
-    res.redirect('/upload.html');
-  });
+app.get('/callback', passport.authenticate('desk', { successRedirect: '/upload.html', failureRedirect: '/login' }));
 
 
 
@@ -84,21 +92,58 @@ app.post('/file', jsonParser, function (req, res){
     token_secret: userTokenSecret
   }
 
-var url = "https://zzz-leaflet.desk.com/api/v2/companies";
+  //Variable List
+  var companyURL = "https://"+siteName+".desk.com/api/v2/companies";
+  var customFieldURL = "https://"+siteName+".desk.com/api/v2/custom_fields"
+  var customFieldBody = {
+    "name": "data_import_company_id",
+    "label": "Data Import Company Id",
+    "type": "company",
+    "active": true,
+    "data": {
+      "type": "integer"
+    }
+  }
 
-//Looping through each object of the array, and posting to the Desk.com server
-for(var i = 0; i <= req.body.data.length; i++) {
-  request.post({url:url, oauth:oauth, json: true, body: req.body.data[i]}, function (error, response, body) {
-    //console.log("Response:", response);
+  //Create a custom field to hold the company ID
+  request.post({url:customFieldURL, oauth:oauth, json:true, body: customFieldBody}, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       console.log(body);
+      console.log(response);
     } else {
       console.log("Error: ", error);
       //console.log("Response: ", response);
     }
-  })
-}
-res.sendStatus(200)
+  });
+
+  //Looping through each object of the array, and posting to the Desk.com server
+  for(var i = 0; i < req.body.data.length; i++) {
+    console.log(req.body.data[i]);
+    //Convert domain propert into an array
+    var domainArray = req.body.data[i].domains.split(',');
+
+    req.body.data[i].domains = domainArray;
+
+    var dataImportCompanyId =  req.body.data[i].company_import_id;
+    //Append last companyID field to the object
+    req.body.data[i].custom_fields = {"data_import_company_id": dataImportCompanyId};
+    //Remove this property within the object
+    delete req.body.data[i].company_import_id;
+    console.log(req.body.data[i]);
+
+    //Post this object into the Desk.com environment
+    request.post({url:companyURL, oauth:oauth, json: true, body: req.body.data[i]}, function (error, response, body) {
+
+      //console.log("Response:", response);
+      if (!error && response.statusCode == 200) {
+        console.log("Success");
+      } else {
+        console.log("Error: ", error);
+        console.log("Response: ", response);
+      }
+    })
+  }
+  res.sendStatus(200)
 });
 
 
