@@ -8,7 +8,8 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var app = express();
 var jsonParser = bodyParser.json();
-
+//Heroku Set
+var port = process.env.PORT || 8080;
 
 //Global Keys
 var consumerKey = "7reGJXZ8Bb3bkQn5NE2w";
@@ -157,8 +158,11 @@ app.post('/file', jsonParser, function (req, res){
   res.sendStatus(200)
 });
 
-
-
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+//Set for Heroku
+app.listen(port, function() {
+    console.log('Our app is running on http://localhost:' + port);
 });
+
+// app.listen(3000, function () {
+//   console.log('Example app listening on port 3000!');
+// });
