@@ -109,7 +109,7 @@ app.post('/file', jsonParser, function (req, res){
   request.post({url:customFieldURL, oauth:oauth, json:true, body: customFieldBody}, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       console.log(body);
-      console.log(response);
+      console.log(response.body);
     } else {
       console.log("Error: ", error);
       //console.log("Response: ", response);
@@ -118,18 +118,27 @@ app.post('/file', jsonParser, function (req, res){
 
   //Looping through each object of the array, and posting to the Desk.com server
   for(var i = 0; i < req.body.data.length; i++) {
-    console.log(req.body.data[i]);
-    //Convert domain propert into an array
+    //Convert domain property into an array
     var domainArray = req.body.data[i].domains.split(',');
-
     req.body.data[i].domains = domainArray;
 
+    //Set company import id to the custom field (Data Import Company ID)
     var dataImportCompanyId =  req.body.data[i].company_import_id;
     //Append last companyID field to the object
     req.body.data[i].custom_fields = {"data_import_company_id": dataImportCompanyId};
     //Remove this property within the object
     delete req.body.data[i].company_import_id;
     console.log(req.body.data[i]);
+
+    //Flip through the object to check for any other custom field
+    for (var prop in req.body.data[i]) {
+      //Check for any non "standard" properties other than name, domains, created_at, updated_at
+      if( ["name","domains","created_at","updated_at","custom_fields","company_import_id"].indexOf(prop) === -1) {
+        req.body.data[i].custom_fields[prop] = req.body.data[i][prop];
+        //Remove this property within the object
+        delete req.body.data[i][prop];
+      }
+    }
 
     //Post this object into the Desk.com environment
     request.post({url:companyURL, oauth:oauth, json: true, body: req.body.data[i]}, function (error, response, body) {
@@ -138,7 +147,9 @@ app.post('/file', jsonParser, function (req, res){
       if (!error && response.statusCode == 200) {
         console.log("Success");
       } else {
-        console.log("Error: ", error);
+        console.log("Error from Company Posting: ", error);
+        console.log("Response body: ", response.body);
+
         console.log("Response: ", response);
       }
     })
@@ -148,6 +159,10 @@ app.post('/file', jsonParser, function (req, res){
 
 
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+// app.listen(3000, function () {
+//   console.log('Example app listening on port 3000!');
+// });
+
+app.listen(process.env.PORT || 3000, function(){
+  console.log('listening on', http.address().port);
 });
