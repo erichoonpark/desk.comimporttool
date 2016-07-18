@@ -4,6 +4,7 @@
   "description": "A tool for importing CSV",
   "main": "index.js",
   "scripts": {
+    "start": "",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -17,5 +18,8 @@
     "passport": "^0.3.2",
     "passport-deskcom": "0.0.2",
     "request": "^2.72.0"
+  },
+  "engines": {
+    "node": "4.1.1"
   }
 }
