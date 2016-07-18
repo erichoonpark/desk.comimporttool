@@ -8,7 +8,7 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var app = express();
 var jsonParser = bodyParser.json();
-//Heroku Set
+//Heroku Set Port
 var port = process.env.PORT || 8080;
 
 //Global Keys
@@ -29,7 +29,7 @@ var deskStrat = new DeskcomStrategy({
     userAuthorizationURL: 'https://zzz-leaflet.desk.com/oauth/authorize',
     consumerKey: consumerKey,
     consumerSecret: consumerSecret,
-    callbackURL: "https://87d3e774.ngrok.io/callback",
+    callbackURL: "https://still-cliffs-62925.herokuapp.com/callback",
     signatureMethod: "HMAC-SHA1",
     param: 'site'
   },
