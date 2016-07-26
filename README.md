@@ -9,6 +9,8 @@ Please use this tool resposibly. Data migrations can be incredibly tricky. As a 
 ### All data types must align on the CSV i.e integer to integer, date to date, etc...
 ### All string fields must be between quotes ("")
 
+Please follow the formatting of this sample CSV: 
+https://org62.my.salesforce.com/sfc/p/000000000062/a/0M000000HmgD/uUSQxMt_ZL2RIwtfKUqf59szjjC3ii84SQrS.PmMy60
 
 ## Installation
 This project is hosted entirely online. Please go to https://still-cliffs-62925.herokuapp.com/ to start the import
