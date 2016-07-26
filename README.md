@@ -3,6 +3,26 @@
 ## Synopsis
 A tool for importing companies and customers into the Desk.com platform from CSV. Agents or customers can import companies or customers simply with a click of a button. The project is built off of Node.js and Express. 
 
+## Instructions
+Okey dokey! You need to import some companies, well I have the tool for you. The Desk.com Import Tool is specifically to quickly and easily import companies from a CSV. We can complete the process in five easy steps. 
+
+1.	Populate the CSV with all company details i.e. name, domains, custom fields. You name it, you got it. Just be sure that all custom fields are already created in the customer’s environment and that your drop down choices are made as well! 
+2.	Check that all data types align! 
+  
+  a.Number: Integer 
+  
+  b.List: Drop down choices are already created
+  
+  c.String: String in quotes
+
+  d.Date: Date/Time Format
+  
+  e.Boolean: True or False
+  
+3.	Next let’s jump into the tool. Our homepage will look something like this, we need to determine which site we are making companies in! Type in the company’s domain here. If the company site id is “cupcakesandbagels.desk.com”, you only need to add “cupcakesandbagels”. Technology is magic, I know.
+4.	Before we can use the tool, we want to make sure we grant it access.We need to grant access in the admin panel. 
+Admin > Site Settings > API
+
 ## Warnings
 Please use this tool resposibly. Data migrations can be incredibly tricky. As a general rule of thumb, please review the CSV for import. 
 
