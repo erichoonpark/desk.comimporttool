@@ -3,7 +3,12 @@
 ## Synopsis
 A tool for importing companies and customers into the Desk.com platform from CSV. Agents or customers can import companies or customers simply with a click of a button. The project is built off of Node.js and Express. 
 
-## Motivation
+## Warnings
+Please use this tool resposibly. Data migrations can be incredibly tricky. As a general rule of thumb, please review the CSV for import. 
+
+### All data types must align on the CSV i.e integer to integer, date to date, etc...
+### All string fields must be between quotes ("")
+
 
 ## Installation
 This project is hosted entirely online. Please go to https://still-cliffs-62925.herokuapp.com/ to start the import
