@@ -6,8 +6,9 @@ A tool for importing companies and customers into the Desk.com platform from CSV
 ## Warnings
 Please use this tool resposibly. Data migrations can be incredibly tricky. As a general rule of thumb, please review the CSV for import. 
 
-### All data types must align on the CSV i.e integer to integer, date to date, etc...
-### All string fields must be between quotes ("")
+1. All data types must align on the CSV i.e integer to integer, date to date, etc...
+2. All string fields must be between quotes ("")
+3. The first five headers must be name, domains, created_at, updated_at, and company_data_import_id
 
 Please follow the formatting of this sample CSV: 
 https://org62.my.salesforce.com/sfc/p/000000000062/a/0M000000HmgD/uUSQxMt_ZL2RIwtfKUqf59szjjC3ii84SQrS.PmMy60
