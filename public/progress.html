@@ -1,11 +1,39 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<script src = "progressbar.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Desk Import Tool</title>
+  <meta name="viewport" content="width=device-width">
+  <link href='https://fonts.googleapis.com/css?family=Roboto+Condensed:700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link href='progress.css' rel='stylesheet' type='text/css'>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  <script src="progress.js"></script>
 </head>
 <body>
-  <div id="container" style="position: relative">
+  <div class="example">
+    <div class="textProgress html">
+      <span class="tp"><i class="fa fa-cloud fa-3x"></i></span>
+      <span class="tp"><i class="fa fa-cloud fa-3x"></i></span>
+      <div class="progress"><span class="percent">40%</span></div>
+    </div>
+    <!-- <h3 style="text-align: center;">Change my value</h3> -->
+    <!-- <input type="range" id="textprog" min="0" max="100" value="25" onchange="atest('.html',this)"> -->
   </div>
 
-  <script src = "progress.js"></script>
 </body>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script>
+jQuery.fn.extend({
+  textProgress : function (value) {
+    this.find(".tp + .tp, .progress").css("width", value + "%").find(".percent").animate({
+      Counter : parseInt(value)
+    }, {
+      step : function (now) {
+        $(this).text(Math.ceil(now))
+      }
+    });
+  }
+});
+</script>
 </html>

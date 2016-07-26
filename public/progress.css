@@ -1,4 +1,110 @@
-#container {
-    width: 100px;
-    height: 100px;
+* {
+    font-family: "Roboto Condensed";
+}
+
+body {
+    width: 500px;
+    margin: 120px auto 0;
+}
+
+input {
+    margin: 10px;
+    padding: 5px;
+    font-size: 20px;
+    width: 100%;
+}
+
+h1 {
+    font-size: 60px;
+}
+
+h1, h2, h3 {
+    margin: 0;
+    text-align: center;
+}
+
+.example {
+    margin-top: 60px;
+}
+
+h3 {
+    margin-top: 50px;
+}
+.textProgress {
+display: block;
+width: 100%;
+position: relative;
+}
+
+.tp {
+position: relative;
+white-space: nowrap;
+width: 100%;
+}
+
+.tp + .tp {
+position: absolute;
+left: 0;
+width: 0;
+overflow: hidden;
+}
+
+.progress {
+padding: 2px 0;
+width: 0;
+text-align: right;
+height: auto;
+}
+
+.percent {
+padding: 5px;
+}
+
+.percent:after {
+content: "%";
+}
+
+/*
+Magic!
+*/
+
+.tp + .tp, .percent, .progress {
+-webkit-transition: all 900ms cubic-bezier(0.805, 0.000, 0.265, 1);
+-webkit-transition: all 900ms cubic-bezier(0.805, 0.000, 0.265, 1.550);
+-moz-transition: all 900ms cubic-bezier(0.805, 0.000, 0.265, 1.550);
+-o-transition: all 900ms cubic-bezier(0.805, 0.000, 0.265, 1.550);
+transition: all 900ms cubic-bezier(0.805, 0.000, 0.265, 1.550);
+-webkit-transition-timing-function: cubic-bezier(0.805, 0.000, 0.265, 1);
+-webkit-transition-timing-function: cubic-bezier(0.805, 0.000, 0.265, 1.550);
+-moz-transition-timing-function: cubic-bezier(0.805, 0.000, 0.265, 1.550);
+-o-transition-timing-function: cubic-bezier(0.805, 0.000, 0.265, 1.550);
+transition-timing-function: cubic-bezier(0.805, 0.000, 0.265, 1.550);
+}
+
+/* Styling, not needed */
+.textProgress {
+height: 80px;
+}
+
+.tp {
+color: #efefef;
+font-size: 50px;
+}
+
+.textProgress .underline {
+border-bottom: 5px solid #cd5353;
+}
+
+.tp + .tp {
+color: #1798c1;
+}
+
+.progress {
+background: #1798c1;
+border-top-right-radius: 2px;
+border-bottom-right-radius: 2px;
+}
+
+.percent {
+color: white;
 }

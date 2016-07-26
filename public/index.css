@@ -1,0 +1,16 @@
+body{
+  margin: 8em 10em 10em 10em;
+  font-family: inherit;
+}
+
+#flash-message {
+  display:none;
+}
+
+#submitSite {
+  margin-top: 10px;
+}
+
+.subcheckbox {
+  margin-left: 2em;
+}

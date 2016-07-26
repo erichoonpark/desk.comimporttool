@@ -8,9 +8,12 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var app = express();
 var jsonParser = bodyParser.json();
+var sleep = require('sleep');
 //Heroku Set Port
 var port = process.env.PORT || 8080;
 
+var counter = 0;
+var total = 0;
 //Global Keys
 var consumerKey = "7reGJXZ8Bb3bkQn5NE2w";
 var consumerSecret = "csAf6M4mtSw4Ou5CDrb5AyUKWfl1lSHfJyzu2jty";
@@ -23,23 +26,25 @@ var userTokenSecret = "pjSvpbAYaRmN3rWnIdNYbUVxxqH1OIeUc6hqhqIY";
 //Change!!!!!
 var siteName = "zzz-leaflet";
 
+app.use(express.static('public'));
+
 var deskStrat = new DeskcomStrategy({
-    requestTokenURL: 'https://zzz-leaflet.desk.com/oauth/request_token',
-    accessTokenURL: 'https://zzz-leaflet.desk.com/oauth/access_token',
-    userAuthorizationURL: 'https://zzz-leaflet.desk.com/oauth/authorize',
-    consumerKey: consumerKey,
-    consumerSecret: consumerSecret,
-    callbackURL: "https://still-cliffs-62925.herokuapp.com/callback",
-    signatureMethod: "HMAC-SHA1",
-    param: 'site'
-  },
-  //Verify Callback after granted user access
-  function(token, tokenSecret, profile, cb) {
-    //console.log('arguments',arguments);
-    // userToken = token;
-    // userTokenSecret = tokenSecret;
-    cb(null,{"User":"Eric Park", token: token, tokenSecret: tokenSecret});
-  }
+  requestTokenURL: 'https://zzz-leaflet.desk.com/oauth/request_token',
+  accessTokenURL: 'https://zzz-leaflet.desk.com/oauth/access_token',
+  userAuthorizationURL: 'https://zzz-leaflet.desk.com/oauth/authorize',
+  consumerKey: consumerKey,
+  consumerSecret: consumerSecret,
+  callbackURL: "https://06dc44aa.ngrok.io/callback",
+  signatureMethod: "HMAC-SHA1",
+  param: 'site'
+},
+//Verify Callback after granted user access
+function(token, tokenSecret, profile, cb) {
+  //console.log('arguments',arguments);
+  // userToken = token;
+  // userTokenSecret = tokenSecret;
+  cb(null,{"User":"Eric Park", token: token, tokenSecret: tokenSecret});
+}
 );
 
 passport.use('desk', deskStrat);
@@ -56,7 +61,7 @@ app.use(session({ secret: 'SECRET' }));
 app.use(passport.initialize());
 app.use(passport.session());
 // app.use(app.router);
-app.use(express.static('public'));
+
 
 //Global Routes
 //Routes that activate the /desk to begin oauth
@@ -112,11 +117,12 @@ app.post('/file', jsonParser, function (req, res){
       console.log(body);
       console.log(response.body);
     } else {
-      console.log("Error: ", error);
+      //console.log("Error: ", error);
       //console.log("Response: ", response);
     }
   });
-
+  counter = 0;
+  total = req.body.data.length;
   //Looping through each object of the array, and posting to the Desk.com server
   for(var i = 0; i < req.body.data.length; i++) {
     //Convert domain property into an array
@@ -153,14 +159,29 @@ app.post('/file', jsonParser, function (req, res){
 
         console.log("Response: ", response);
       }
-    })
+    });
+
+    //Increase counter for progress bar
+    //counter++;
   }
+  var testSetInterval = setInterval(function(){
+    if(counter >= total){
+      clearInterval(testSetInterval);
+    } else {
+      counter++;
+      console.log(counter);
+    }
+  }, 5000)
   res.sendStatus(200)
+});
+
+app.get('/progressnumber', function(req,res){
+  res.send(""+Math.ceil((counter/total)*100));
 });
 
 //Set for Heroku
 app.listen(port, function() {
-    console.log('Our app is running on http://localhost:' + port);
+  console.log('Our app is running on http://localhost:' + port);
 });
 
 // app.listen(3000, function () {

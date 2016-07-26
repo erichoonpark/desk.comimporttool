@@ -15,6 +15,7 @@ $(document).ready(function () {
       dynamicTyping: true,
       complete: function(results) {
         //Ajax Post back to our server
+        console.log(results);
         $.ajax({
           type:"POST",
           data: JSON.stringify(results),
