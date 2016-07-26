@@ -34,7 +34,7 @@ var deskStrat = new DeskcomStrategy({
   userAuthorizationURL: 'https://zzz-leaflet.desk.com/oauth/authorize',
   consumerKey: consumerKey,
   consumerSecret: consumerSecret,
-  callbackURL: "https://06dc44aa.ngrok.io/callback",
+  callbackURL: "https://still-cliffs-62925.herokuapp.com/",
   signatureMethod: "HMAC-SHA1",
   param: 'site'
 },
