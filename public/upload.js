@@ -8,14 +8,13 @@ $(document).ready(function () {
     evt.preventDefault();
     //Variable List
     var input = document.getElementById("csv-file").files[0];
-
     //Papa Parse Module to parse data
     Papa.parse(input, {
       header: true,
       dynamicTyping: true,
       complete: function(results) {
         //Ajax Post back to our server
-        console.log(results);
+        console.log(results.data);
         $.ajax({
           type:"POST",
           data: JSON.stringify(results),

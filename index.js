@@ -34,7 +34,7 @@ var deskStrat = new DeskcomStrategy({
   userAuthorizationURL: 'https://zzz-leaflet.desk.com/oauth/authorize',
   consumerKey: consumerKey,
   consumerSecret: consumerSecret,
-  callbackURL: "https://still-cliffs-62925.herokuapp.com/callback",
+  callbackURL: "https://e3a2d01e.ngrok.io/callback",
   signatureMethod: "HMAC-SHA1",
   param: 'site'
 },
@@ -129,21 +129,32 @@ app.post('/file', jsonParser, function (req, res){
     var domainArray = req.body.data[i].domains.split(',');
     req.body.data[i].domains = domainArray;
 
-    //Set company import id to the custom field (Data Import Company ID)
-    var dataImportCompanyId =  req.body.data[i].company_import_id;
-    //Append last companyID field to the object
-    req.body.data[i].custom_fields = {"data_import_company_id": dataImportCompanyId};
-    //Remove this property within the object
-    delete req.body.data[i].company_import_id;
-    console.log(req.body.data[i]);
+    // //Set company import id to the custom field (Data Import Company ID)
+    // var dataImportCompanyId =  req.body.data[i].company_import_id;
+    // //Append last companyID field to the object
+    // req.body.data[i].custom_fields = {"data_import_company_id": dataImportCompanyId};
+    // //Remove this property within the object
+    // delete req.body.data[i].company_import_id;
 
+    req.body.data[i].custom_fields = {};
     //Flip through the object to check for any other custom field
+    console.log('req.body.data[i]',req.body.data[i])
     for (var prop in req.body.data[i]) {
-      //Check for any non "standard" properties other than name, domains, created_at, updated_at
-      if( ["name","domains","created_at","updated_at","custom_fields","company_import_id"].indexOf(prop) === -1) {
-        req.body.data[i].custom_fields[prop] = req.body.data[i][prop];
+      //Variable to hold the custom field indicator
+      var CUSTOM  = "custom_";
+      //Check for any non "standard" properties that contain a 'custom_'
+      if(prop.indexOf(CUSTOM) != -1 && prop !== 'custom_fields') {
+        //Remove the 'custom_' indicator from the property
+        console.log("prop before custom_removal: " + prop);
+        var newprop = prop.slice(7);
+        console.log("prop after custom_removal: " + newprop);
+
+        req.body.data[i].custom_fields[newprop] = req.body.data[i][prop]
+
+        //req.body.data[i].custom_fields[prop] = req.body.data[i][prop];
         //Remove this property within the object
         delete req.body.data[i][prop];
+
       }
     }
 

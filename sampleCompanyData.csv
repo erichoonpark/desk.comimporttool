@@ -1,0 +1,4 @@
+name,domains,created_at,updated_at,custom_company_import_id,custom_list,custom_date,custom_integer,custom_text,custom_boolean
+August 4 - Test from custom fields_ 5,"test.com, ericpark.com",2016-03-31T21:51:59.747Z,2016-03-31T21:51:59.747Z,71292292,Value 1,2016-03-31T21:51:59.747Z,1231231,"""Test String Value 1""",TRUE
+August 4 - Test for Custom_ 5,krpo.com,2016-03-31T21:51:59.747Z,2016-03-31T21:51:59.747Z,22070674,Value 2,2016-03-31T21:51:59.747Z,1231231,"""Test String Value 2""",FALSE
+August 4 - Test from Ngrok 5,"test.com,bbb.com,inanarray.com",2016-03-31T21:51:59.747Z,2016-03-31T21:51:59.747Z,77989252,Value 1,2016-03-31T21:51:59.747Z,1231231,"""Test String Value 2""",TRUE
