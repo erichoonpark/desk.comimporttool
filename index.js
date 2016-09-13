@@ -34,7 +34,7 @@ var deskStrat = new DeskcomStrategy({
   userAuthorizationURL: 'https://zzz-leaflet.desk.com/oauth/authorize',
   consumerKey: consumerKey,
   consumerSecret: consumerSecret,
-  callbackURL: "https://e3a2d01e.ngrok.io/callback",
+  callbackURL: "https://0d2ef31a.ngrok.io/callback",
   signatureMethod: "HMAC-SHA1",
   param: 'site'
 },
@@ -66,7 +66,6 @@ app.use(passport.session());
 //Global Routes
 //Routes that activate the /desk to begin oauth
 app.get('/desk', function(req, res) {
-  console.log(deskStrat);
   deskStrat._oauth._requestUrl = 'https://' + req.query.site + '.desk.com/oauth/request_token';
   deskStrat._oauth._accessUrl = 'https://' + req.query.site + '.desk.com/oauth/access_token';
   deskStrat._userAuthorizationURL = 'https://' + req.query.site + '.desk.com/oauth/authorize';
@@ -88,8 +87,11 @@ passport.deserializeUser(function(obj, cb) {
   cb(null, obj);
 });
 
-//Receiving the file from the front-end
-app.post('/file', jsonParser, function (req, res){
+/******************************** COMPANY UPLOAD ********************************/
+
+
+//Receiving the file from the front-end for the company
+app.post('/company', jsonParser, function (req, res){
   if (!req.body) return res.sendStatus(400);
   var oauth = {
     consumer_key: consumerKey,
@@ -114,8 +116,8 @@ app.post('/file', jsonParser, function (req, res){
   //Create a custom field to hold the company ID
   request.post({url:customFieldURL, oauth:oauth, json:true, body: customFieldBody}, function (error, response, body) {
     if (!error && response.statusCode == 200) {
-      console.log(body);
-      console.log(response.body);
+      //console.log(body);
+      //console.log(response.body);
     } else {
       //console.log("Error: ", error);
       //console.log("Response: ", response);
@@ -138,7 +140,7 @@ app.post('/file', jsonParser, function (req, res){
 
     req.body.data[i].custom_fields = {};
     //Flip through the object to check for any other custom field
-    console.log('req.body.data[i]',req.body.data[i])
+    //console.log('req.body.data[i]',req.body.data[i])
     for (var prop in req.body.data[i]) {
       //Variable to hold the custom field indicator
       var CUSTOM  = "custom_";
@@ -166,6 +168,118 @@ app.post('/file', jsonParser, function (req, res){
         console.log("Success");
       } else {
         console.log("Error from Company Posting: ", error);
+        console.log("Response body: ", response.body);
+
+        console.log("Response: ", response);
+      }
+    });
+
+    //Increase counter for progress bar
+    //counter++;
+  }
+  var testSetInterval = setInterval(function(){
+    if(counter >= total){
+      clearInterval(testSetInterval);
+    } else {
+      counter++;
+      console.log(counter);
+    }
+  }, 5000)
+  res.sendStatus(200)
+});
+
+/******************************** CUSTOMER UPLOAD ********************************/
+
+//Receiving the file from the front-end for the customer
+app.post('/customer', jsonParser, function (req, res){
+  if (!req.body) return res.sendStatus(400);
+  var oauth = {
+    consumer_key: consumerKey,
+    consumer_secret: consumerSecret,
+    token: userToken,
+    token_secret: userTokenSecret
+  }
+
+  //Variable List
+  var customerURL = "https://"+siteName+".desk.com/api/v2/customers";
+  var customFieldURL = "https://"+siteName+".desk.com/api/v2/custom_fields"
+  var customFieldBody = {
+    "name": "data_import_customer_id",
+    "label": "Data Import Customer Id",
+    "type": "customer",
+    "active": true,
+    "data": {
+      "type": "integer"
+    }
+  }
+
+  //Create a custom field to hold the customer ID
+  request.post({url:customFieldURL, oauth:oauth, json:true, body: customFieldBody}, function (error, response, body) {
+    debugger;
+    if (!error && response.statusCode == 200) {
+      console.log(body);
+      console.log(response.body);
+    } else {
+      console.log("Error: ", error);
+      console.log("Response: ", response);
+    }
+  });
+  counter = 0;
+  total = req.body.data.length;
+  //Looping through each object of the array, and posting to the Desk.com server
+  for(var i = 0; i < req.body.data.length; i++) {
+
+    // //Set company import id to the custom field (Data Import Company ID)
+    // var dataImportCompanyId =  req.body.data[i].company_import_id;
+    // //Append last companyID field to the object
+    // req.body.data[i].custom_fields = {"data_import_company_id": dataImportCompanyId};
+    // //Remove this property within the object
+    // delete req.body.data[i].company_import_id;
+
+    //Property Creation for custom fields, emails, phone_numbers, addresses, _links
+    req.body.data[i].custom_fields = {};
+    req.body.data[i].emails = [];
+    req.body.data[i].phone_numbers= [];
+    req.body.data[i].addresses = [];
+    req.body.data[i]._links = {};
+
+    //Flip through the object to check for any other custom field
+    for (var prop in req.body.data[i]) {
+      /*****Custom Fields*****/
+      //Variable to hold the custom field indicator
+      var CUSTOM  = "custom_";
+      //Check for any non "standard" properties that contain a 'custom_'
+      if(prop.indexOf(CUSTOM) != -1 && prop !== 'custom_fields') {
+        //Remove the 'custom_' indicator from the property
+        var newprop = prop.slice(7);
+
+        req.body.data[i].custom_fields[newprop] = req.body.data[i][prop]
+
+        delete req.body.data[i][prop];
+
+      } else if (prop.indexOf("home") || prop.indexOf("work") || prop.indexOf("mobile") || prop.indexOf("other")) {
+        var contactArray = prop.split("_");
+        if (contactArray[1] == "email"){
+          req.body.data[i].emails.push({"type": contactArray[0], "value": req.body.data[i][prop]});
+          delete req.body.data[i][prop]
+        } else if(contactArray[1] == "address"){
+          req.body.data[i].addresses.push({"type": contactArray[0], "value": req.body.data[i][prop]});
+          delete req.body.data[i][prop]
+        } else if(contactArray[1] == "phone"){
+          req.body.data[i].phone_numbers.push({"type": contactArray[0], "value": req.body.data[i][prop]});
+          delete req.body.data[i][prop]
+        }
+      }
+    }
+
+    //Post this object into the Desk.com environment
+    request.post({url:customerURL, oauth:oauth, json: true, body: req.body.data[i]}, function (error, response, body) {
+      debugger
+      //console.log("Response:", response);
+      if (!error && response.statusCode == 200) {
+        console.log("Success");
+      } else {
+        console.log("Error from Customer Posting: ", error);
         console.log("Response body: ", response.body);
 
         console.log("Response: ", response);

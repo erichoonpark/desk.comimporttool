@@ -1,0 +1,4 @@
+company_id,title,first_name,last_name,data_import_customer_id,home_email,work_email,mobile_email,other_phone,home_phone,home_address,work_address,custom_vip,custom_test
+71292292,Dr.,Isaias,Osinski,67214699,isaias.osinski382@nicolaenger.biz,osinski_isaias952@kuhlman.info,,(326) 028-8613,1-311-090-0243,"7100 Athens Place Washington, DC 20521-7100","8400 London Place Washington, DC 20521-8400",TRUE,Case
+22070674,Mrs.,Jayde,Kohler,8749009,kohler_jayde660@westmonahan.info,kohler-jayde395@beer.com,kohler-jayde397@mccullough.io,1-119-090-2554 x79327,202-818-1195,"5520 Quebec Place Washington, DC 20521-5520","6170 Peshwar Place Washington, DC 20521-6170",TRUE,Case
+77989252,Ms.,Delpha,Olson,41057096,olson_delpha801@huels.name,olson_delpha514@jacobs.co,olson_delpha749@kulas.co,(170) 111-2612,(648) 626-7651,"2430 Nouakchott Place Washington, DC 20521-2430",3 Cardinal Drive Groton CA 06340,FALSE,Test Case
