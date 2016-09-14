@@ -34,7 +34,7 @@ var deskStrat = new DeskcomStrategy({
   userAuthorizationURL: 'https://zzz-leaflet.desk.com/oauth/authorize',
   consumerKey: consumerKey,
   consumerSecret: consumerSecret,
-  callbackURL: "https://0d2ef31a.ngrok.io/callback",
+  callbackURL: "https://f7b4f9f5.ngrok.io/callback",
   signatureMethod: "HMAC-SHA1",
   param: 'site'
 },
@@ -115,33 +115,37 @@ app.post('/company', jsonParser, function (req, res){
 
   //Create a custom field to hold the company ID
   request.post({url:customFieldURL, oauth:oauth, json:true, body: customFieldBody}, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      //console.log(body);
-      //console.log(response.body);
+    if (!error && response.statusCode == 201) {
+      console.log('Custom field successfully created.');
     } else {
-      //console.log("Error: ", error);
-      //console.log("Response: ", response);
+      if (body.message === "Validation failed: Key has already been taken.") {
+        console.log("Custom field already exists.");
+      } else {
+        console.log("Error: ", error);
+        //console.log("Response: ", response);
+      }
     }
   });
   counter = 0;
   total = req.body.data.length;
   //Looping through each object of the array, and posting to the Desk.com server
-  for(var i = 0; i < req.body.data.length; i++) {
+  for(var i = 0; i < total; i++) {
+    var companyObject = req.body.data[i];
     //Convert domain property into an array
-    var domainArray = req.body.data[i].domains.split(',');
-    req.body.data[i].domains = domainArray;
+    var domainArray = companyObject.domains.split(',');
+    companyObject.domains = domainArray;
 
     // //Set company import id to the custom field (Data Import Company ID)
-    // var dataImportCompanyId =  req.body.data[i].company_import_id;
+    // var dataImportCompanyId =  companyObject.company_import_id;
     // //Append last companyID field to the object
-    // req.body.data[i].custom_fields = {"data_import_company_id": dataImportCompanyId};
+    // companyObject.custom_fields = {"data_import_company_id": dataImportCompanyId};
     // //Remove this property within the object
-    // delete req.body.data[i].company_import_id;
+    // delete companyObject.company_import_id;
 
-    req.body.data[i].custom_fields = {};
+    companyObject.custom_fields = {};
     //Flip through the object to check for any other custom field
-    //console.log('req.body.data[i]',req.body.data[i])
-    for (var prop in req.body.data[i]) {
+    //console.log('companyObject',companyObject)
+    for (var prop in companyObject) {
       //Variable to hold the custom field indicator
       var CUSTOM  = "custom_";
       //Check for any non "standard" properties that contain a 'custom_'
@@ -151,26 +155,26 @@ app.post('/company', jsonParser, function (req, res){
         var newprop = prop.slice(7);
         console.log("prop after custom_removal: " + newprop);
 
-        req.body.data[i].custom_fields[newprop] = req.body.data[i][prop]
+        companyObject.custom_fields[newprop] = companyObject[prop]
 
-        //req.body.data[i].custom_fields[prop] = req.body.data[i][prop];
+        //companyObject.custom_fields[prop] = companyObject[prop];
         //Remove this property within the object
-        delete req.body.data[i][prop];
+        delete companyObject[prop];
 
       }
     }
 
     //Post this object into the Desk.com environment
-    request.post({url:companyURL, oauth:oauth, json: true, body: req.body.data[i]}, function (error, response, body) {
+    request.post({url:companyURL, oauth:oauth, json: true, body: companyObject}, function (error, response, body) {
 
       //console.log("Response:", response);
-      if (!error && response.statusCode == 200) {
+      if (!error && response.statusCode == 201) {
         console.log("Success");
       } else {
         console.log("Error from Company Posting: ", error);
-        console.log("Response body: ", response.body);
+        console.log("Response body from creating company: ", response.body);
 
-        console.log("Response: ", response);
+        console.log("Complete response: ", response);
       }
     });
 
@@ -202,7 +206,7 @@ app.post('/customer', jsonParser, function (req, res){
 
   //Variable List
   var customerURL = "https://"+siteName+".desk.com/api/v2/customers";
-  var customFieldURL = "https://"+siteName+".desk.com/api/v2/custom_fields"
+  var customFieldURL = "https://"+siteName+".desk.com/api/v2/custom_fields";
   var customFieldBody = {
     "name": "data_import_customer_id",
     "label": "Data Import Customer Id",
@@ -215,80 +219,106 @@ app.post('/customer', jsonParser, function (req, res){
 
   //Create a custom field to hold the customer ID
   request.post({url:customFieldURL, oauth:oauth, json:true, body: customFieldBody}, function (error, response, body) {
-    debugger;
-    if (!error && response.statusCode == 200) {
+    if (!error && response.statusCode == 201) {
       console.log(body);
       console.log(response.body);
     } else {
-      console.log("Error: ", error);
-      console.log("Response: ", response);
+      if (body.message === "Validation failed: Key has already been taken.") {
+        console.log("Custom field already exists.");
+      } else {
+        console.log("Error on creating custom field: ", error);
+        console.log("Response on creating custom field: ", response);
+      }
     }
   });
   counter = 0;
   total = req.body.data.length;
+  // Storing customers in an object, indexed by the company id so we can create them
+  // once we get the company name.
+  var customersToCreate = {};
   //Looping through each object of the array, and posting to the Desk.com server
   for(var i = 0; i < req.body.data.length; i++) {
-
+    var customerObject = req.body.data[i];
+    var companyId = customerObject.data_import_company_id;
+    customersToCreate[companyId] = customersToCreate[companyId] || [];
+    customersToCreate[companyId].push(customerObject);
     // //Set company import id to the custom field (Data Import Company ID)
-    // var dataImportCompanyId =  req.body.data[i].company_import_id;
+    // var dataImportCompanyId =  customerObject.company_import_id;
     // //Append last companyID field to the object
-    // req.body.data[i].custom_fields = {"data_import_company_id": dataImportCompanyId};
+    // customerObject.custom_fields = {"data_import_company_id": dataImportCompanyId};
     // //Remove this property within the object
-    // delete req.body.data[i].company_import_id;
-
+    // delete customerObject.company_import_id;
     //Property Creation for custom fields, emails, phone_numbers, addresses, _links
-    req.body.data[i].custom_fields = {};
-    req.body.data[i].emails = [];
-    req.body.data[i].phone_numbers= [];
-    req.body.data[i].addresses = [];
-    req.body.data[i]._links = {};
-
-    //Flip through the object to check for any other custom field
-    for (var prop in req.body.data[i]) {
-      /*****Custom Fields*****/
-      //Variable to hold the custom field indicator
-      var CUSTOM  = "custom_";
-      //Check for any non "standard" properties that contain a 'custom_'
-      if(prop.indexOf(CUSTOM) != -1 && prop !== 'custom_fields') {
-        //Remove the 'custom_' indicator from the property
-        var newprop = prop.slice(7);
-
-        req.body.data[i].custom_fields[newprop] = req.body.data[i][prop]
-
-        delete req.body.data[i][prop];
-
-      } else if (prop.indexOf("home") || prop.indexOf("work") || prop.indexOf("mobile") || prop.indexOf("other")) {
-        var contactArray = prop.split("_");
-        if (contactArray[1] == "email"){
-          req.body.data[i].emails.push({"type": contactArray[0], "value": req.body.data[i][prop]});
-          delete req.body.data[i][prop]
-        } else if(contactArray[1] == "address"){
-          req.body.data[i].addresses.push({"type": contactArray[0], "value": req.body.data[i][prop]});
-          delete req.body.data[i][prop]
-        } else if(contactArray[1] == "phone"){
-          req.body.data[i].phone_numbers.push({"type": contactArray[0], "value": req.body.data[i][prop]});
-          delete req.body.data[i][prop]
-        }
-      }
-    }
-
-    //Post this object into the Desk.com environment
-    request.post({url:customerURL, oauth:oauth, json: true, body: req.body.data[i]}, function (error, response, body) {
-      debugger
-      //console.log("Response:", response);
+    customerObject.custom_fields = {};
+    customerObject.emails = [];
+    customerObject.phone_numbers= [];
+    customerObject.addresses = [];
+    customerObject._links = {};
+    //Find the company name using the data_import_company_id
+    var companyName = "";
+    var companyLookupURL = "https://"+siteName+".desk.com/api/v2/companies/search?q=data_import_company_id:"+customerObject.data_import_company_id;
+    request.get({url:companyLookupURL,oauth:oauth, json:true}, function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        console.log("Success");
+        var company = body._embedded.entries[0];
+        console.log("Company Name from request:" + company.name);
+        // Now we can create customers with this same company id
+        createCustomers(company.custom_fields.data_import_company_id, company.name);
       } else {
-        console.log("Error from Customer Posting: ", error);
-        console.log("Response body: ", response.body);
-
+        console.log("Error: ", error);
         console.log("Response: ", response);
       }
     });
-
     //Increase counter for progress bar
     //counter++;
   }
+  var createCustomers = function (id,name) {
+    for (let customer of customersToCreate[id]) {
+      customer.company = name;
+      for (var prop in customer) {
+        /*****Custom Fields*****/
+        //Variable to hold the custom field indicator
+        var CUSTOM  = "custom_";
+        //Check for any non "standard" properties that contain a 'custom_'
+        if(prop.indexOf(CUSTOM) != -1 && prop !== 'custom_fields') {
+          //Remove the 'custom_' indicator from the property
+          var newprop = prop.slice(7);
+
+          customer.custom_fields[newprop] = customer[prop]
+
+          delete customer[prop];
+
+        } else if (prop.indexOf("home") || prop.indexOf("work") || prop.indexOf("mobile") || prop.indexOf("other")) {
+          var contactArray = prop.split("_");
+          if (contactArray[1] == "email" && customer[prop]){
+            customer.emails.push({"type": contactArray[0], "value": customer[prop]});
+            delete customer[prop]
+          } else if(contactArray[1] == "address" && customer[prop]){
+            customer.addresses.push({"type": contactArray[0], "value": customer[prop]});
+            delete customer[prop]
+          } else if(contactArray[1] == "phone" && customer[prop]){
+            customer.phone_numbers.push({"type": contactArray[0], "value": customer[prop]});
+            delete customer[prop]
+          }
+        }
+      }
+
+      //Post this object into the Desk.com environment
+      request.post({url:customerURL, oauth:oauth, json: true, body: customer}, function (error, response, body) {
+        if (!error && response.statusCode == 201) {
+          console.log("Successfully created",body);
+        } else {
+          if (body.message === "Validation failed: Key has already been taken.") {
+            console.log("Customer already exists.");
+          } else {
+            console.log("Error on customer create: ", error);
+            console.log("Response on customer create: ", response);
+          }
+        }
+      })
+    }
+
+  }
+
   var testSetInterval = setInterval(function(){
     if(counter >= total){
       clearInterval(testSetInterval);
