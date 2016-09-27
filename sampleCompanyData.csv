@@ -1,4 +1,4 @@
 name,domains,created_at,updated_at,custom_data_import_company_id,custom_list,custom_date,custom_integer,custom_text,custom_boolean
-Sept 14  - Test 1,"test.com, ericpark.com",2016-03-31T21:51:59.747Z,2016-03-31T21:51:59.747Z,11111111,Value 1,2016-03-31T21:51:59.747Z,1231231,"""Test String Value 1""",TRUE
-Sept 14  - Test 2,krpo.com,2016-03-31T21:51:59.747Z,2016-03-31T21:51:59.747Z,12222222,Value 2,2016-03-31T21:51:59.747Z,1231231,"""Test String Value 2""",FALSE
-Sept 14  - Test 3,"test.com,bbb.com,inanarray.com",2016-03-31T21:51:59.747Z,2016-03-31T21:51:59.747Z,33333333,Value 1,2016-03-31T21:51:59.747Z,1231231,"""Test String Value 2""",TRUE
+paylocity.com,paylocaity.com,2016-03-31T21:51:59.747Z,2016-03-31T21:51:59.747Z,151215,Value 1,2016-03-31T21:51:59.747Z,1231231,"""Test String Value 1""",TRUE
+odesa,odesa.com,2016-03-31T21:51:59.747Z,2016-03-31T21:51:59.747Z,12222222,Value 2,2016-03-31T21:51:59.747Z,1231231,"""Test String Value 2""",FALSE
+cimarron,cimarron.com,2016-03-31T21:51:59.747Z,2016-03-31T21:51:59.747Z,33333333,Value 1,2016-03-31T21:51:59.747Z,1231231,"""Test String Value 2""",TRUE

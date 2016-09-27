@@ -15,6 +15,9 @@ function atest (elemSelector, range) {
 var testSetInterval = setInterval(function(){
   if(currentProgress >= 100){
     clearInterval(testSetInterval);
+    // $.get("/importLog", function(data) {
+    //   console.log("importLog: "+ data[0]);
+    // });
     alert("We are done");
   } else {
     $.get("/progressnumber", function(data) {

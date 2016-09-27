@@ -21,8 +21,9 @@ var consumerSecret = "csAf6M4mtSw4Ou5CDrb5AyUKWfl1lSHfJyzu2jty";
 // We'll figure out how to do that later.
 var userToken = "bHh44cKHT7JrWM0x5gdM";
 var userTokenSecret = "pjSvpbAYaRmN3rWnIdNYbUVxxqH1OIeUc6hqhqIY";
-
-
+//Error Log to hold all errors with data migration
+var successLog = [];
+var errorLog = [];
 //Change!!!!!
 var siteName = "zzz-leaflet";
 
@@ -92,6 +93,8 @@ passport.deserializeUser(function(obj, cb) {
 
 //Receiving the file from the front-end for the company
 app.post('/company', jsonParser, function (req, res){
+  successLog = [];
+  errorLog = [];
   if (!req.body) return res.sendStatus(400);
   var oauth = {
     consumer_key: consumerKey,
@@ -116,13 +119,23 @@ app.post('/company', jsonParser, function (req, res){
   //Create a custom field to hold the company ID
   request.post({url:customFieldURL, oauth:oauth, json:true, body: customFieldBody}, function (error, response, body) {
     if (!error && response.statusCode == 201) {
-      console.log('Custom field successfully created.');
+      successLog.push({
+        message: "Success",
+        value: customFieldBody
+      });
     } else {
       if (body.message === "Validation failed: Key has already been taken.") {
-        console.log("Custom field already exists.");
+        //console.log("Custom field already exists.");
+        errorLog.push({
+          message: "Custom field already exists.",
+          value: customFieldBody
+        });
       } else {
-        console.log("Error: ", error);
-        //console.log("Response: ", response);
+        //console.log("Error: ", error);
+        errorLog.push({
+          message: "Company Data Import Id Error" + error,
+          value: customFieldBody
+        });
       }
     }
   });
@@ -151,10 +164,7 @@ app.post('/company', jsonParser, function (req, res){
       //Check for any non "standard" properties that contain a 'custom_'
       if(prop.indexOf(CUSTOM) != -1 && prop !== 'custom_fields') {
         //Remove the 'custom_' indicator from the property
-        console.log("prop before custom_removal: " + prop);
         var newprop = prop.slice(7);
-        console.log("prop after custom_removal: " + newprop);
-
         companyObject.custom_fields[newprop] = companyObject[prop]
 
         //companyObject.custom_fields[prop] = companyObject[prop];
@@ -166,21 +176,28 @@ app.post('/company', jsonParser, function (req, res){
 
     //Post this object into the Desk.com environment
     request.post({url:companyURL, oauth:oauth, json: true, body: companyObject}, function (error, response, body) {
-
       //console.log("Response:", response);
       if (!error && response.statusCode == 201) {
-        console.log("Success");
+        //console.log("Success");
+        successLog.push({
+          message: "Success",
+          value: companyObject
+        });
       } else {
-        console.log("Error from Company Posting: ", error);
-        console.log("Response body from creating company: ", response.body);
-
-        console.log("Complete response: ", response);
+        //console.log("Error from Company Posting: ", error);
+        //console.log("Response body from creating company: ", response.body);
+        errorLog.push({
+          message: "Error from Company Posting",
+          value: companyObject
+        });
       }
     });
 
     //Increase counter for progress bar
     //counter++;
   }
+  console.log("Success Log:",successLog);
+  console.log("Error Log:",errorLog);
   var testSetInterval = setInterval(function(){
     if(counter >= total){
       clearInterval(testSetInterval);
@@ -196,6 +213,8 @@ app.post('/company', jsonParser, function (req, res){
 
 //Receiving the file from the front-end for the customer
 app.post('/customer', jsonParser, function (req, res){
+  successLog = [];
+  errorLog = [];
   if (!req.body) return res.sendStatus(400);
   var oauth = {
     consumer_key: consumerKey,
@@ -220,14 +239,22 @@ app.post('/customer', jsonParser, function (req, res){
   //Create a custom field to hold the customer ID
   request.post({url:customFieldURL, oauth:oauth, json:true, body: customFieldBody}, function (error, response, body) {
     if (!error && response.statusCode == 201) {
-      console.log(body);
-      console.log(response.body);
+      successLog.push({
+        message: "Success",
+        value: customFieldBody
+      });
     } else {
       if (body.message === "Validation failed: Key has already been taken.") {
-        console.log("Custom field already exists.");
+        //console.log("Custom field already exists.");
+        errorLog.push({
+          message: "Custom field already exists.",
+          value: customFieldBody
+        });
       } else {
-        console.log("Error on creating custom field: ", error);
-        console.log("Response on creating custom field: ", response);
+        errorLog.push({
+          message: "Error from Company Posting" + error,
+          value: companyObject
+        });
       }
     }
   });
@@ -260,12 +287,13 @@ app.post('/customer', jsonParser, function (req, res){
     request.get({url:companyLookupURL,oauth:oauth, json:true}, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var company = body._embedded.entries[0];
-        console.log("Company Name from request:" + company.name);
         // Now we can create customers with this same company id
         createCustomers(company.custom_fields.data_import_company_id, company.name);
       } else {
-        console.log("Error: ", error);
-        console.log("Response: ", response);
+        errorLog.push({
+          message: "Error finding company by id" + error,
+          value: company
+        });
       }
     });
     //Increase counter for progress bar
@@ -305,18 +333,28 @@ app.post('/customer', jsonParser, function (req, res){
       //Post this object into the Desk.com environment
       request.post({url:customerURL, oauth:oauth, json: true, body: customer}, function (error, response, body) {
         if (!error && response.statusCode == 201) {
-          console.log("Successfully created",body);
+          //console.log("Successfully created",body);
+          successLog.push({
+            message: "Success",
+            value: customerObject
+          });
         } else {
           if (body.message === "Validation failed: Key has already been taken.") {
-            console.log("Customer already exists.");
+            errorLog.push({
+              message: "Customer already exists",
+              value: customerObject
+            });
           } else {
-            console.log("Error on customer create: ", error);
-            console.log("Response on customer create: ", response);
+            errorLog.push({
+              message: "Error from Customer Posting" + error,
+              value: customerObject
+            });
           }
         }
       })
     }
-
+    console.log("Success Log:",successLog);
+    console.log("Error Log:",errorLog);
   }
 
   var testSetInterval = setInterval(function(){
@@ -333,6 +371,12 @@ app.post('/customer', jsonParser, function (req, res){
 app.get('/progressnumber', function(req,res){
   res.send(""+Math.ceil((counter/total)*100));
 });
+//
+// app.get('/successLog', function(req,res){
+//   //Display Errors within the Terminal
+//   res.send(successLog);
+// });
+
 
 //Set for Heroku
 app.listen(port, function() {
