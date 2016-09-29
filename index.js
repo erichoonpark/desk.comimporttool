@@ -35,7 +35,7 @@ var deskStrat = new DeskcomStrategy({
   userAuthorizationURL: 'https://zzz-leaflet.desk.com/oauth/authorize',
   consumerKey: consumerKey,
   consumerSecret: consumerSecret,
-  callbackURL: "https://f7b4f9f5.ngrok.io/callback",
+  callbackURL: "https://404b490a.ngrok.io/callback",
   signatureMethod: "HMAC-SHA1",
   param: 'site'
 },
@@ -245,7 +245,6 @@ app.post('/customer', jsonParser, function (req, res){
       });
     } else {
       if (body.message === "Validation failed: Key has already been taken.") {
-        //console.log("Custom field already exists.");
         errorLog.push({
           message: "Custom field already exists.",
           value: customFieldBody
@@ -354,7 +353,11 @@ app.post('/customer', jsonParser, function (req, res){
       })
     }
     console.log("Success Log:",successLog);
+    // var successCSV = Papa.unparse(successLog);
+    // console.log("Success CSV:",successLog);
     console.log("Error Log:",errorLog);
+    // var errorCSV = Papa.unparse(errorLog);
+    // console.log("Error CSV:",errorLog);
   }
 
   var testSetInterval = setInterval(function(){
