@@ -1,4 +1,5 @@
 //Required Modules
+"use strict"
 var express = require('express');
 var passport = require('passport');
 var session = require('express-session');
@@ -11,7 +12,6 @@ var jsonParser = bodyParser.json();
 var sleep = require('sleep');
 //Heroku Set Port
 var port = process.env.PORT || 8080;
-
 var counter = 0;
 var total = 0;
 //Global Keys
