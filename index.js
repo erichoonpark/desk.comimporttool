@@ -15,12 +15,12 @@ var port = process.env.PORT || 8080;
 var counter = 0;
 var total = 0;
 //Global Keys
-var consumerKey = "7reGJXZ8Bb3bkQn5NE2w";
-var consumerSecret = "csAf6M4mtSw4Ou5CDrb5AyUKWfl1lSHfJyzu2jty";
+var consumerKey = "*************";
+var consumerSecret = "*************";
 // FIXME: This should be stored as part of the session so user tokens aren't mixed up.
 // We'll figure out how to do that later.
-var userToken = "bHh44cKHT7JrWM0x5gdM";
-var userTokenSecret = "pjSvpbAYaRmN3rWnIdNYbUVxxqH1OIeUc6hqhqIY";
+var userToken = "*************";
+var userTokenSecret = "*************";
 //Error Log to hold all errors with data migration
 var successLog = [];
 var errorLog = [];
